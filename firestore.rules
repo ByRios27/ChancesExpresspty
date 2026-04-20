@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'CEO') ||
+         (request.auth.token.email == "jrios5061@gmail.com" && request.auth.token.email_verified));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isValidString(val, min, max) {
+      return val is string && val.size() >= min && val.size() <= max;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'username', 'role', 'status', 'commission']) &&
+             isValidString(data.name, 1, 100) &&
+             isValidString(data.username, 1, 50) &&
+             data.role in ['CEO', 'VENDEDOR', 'USUARIO'] &&
+             data.status in ['active', 'inactive'] &&
+             data.commission is number && data.commission >= 0 && data.commission <= 1 &&
+             (!('capitalInjection' in data) || data.capitalInjection is number);
+    }
+
+    match /users/{userId} {
+      allow get: if isAuthenticated();
+      allow list: if isAdmin() || (isAuthenticated() && request.query.limit == 1);
+      allow create: if isAdmin() || (isAuthenticated() && request.auth.token.email == "jrios5061@gmail.com");
+      allow update: if isAdmin() || (isOwner(userId) && 
+                      request.resource.data.role == resource.data.role && 
+                      request.resource.data.commission == resource.data.commission &&
+                      isValidUser(request.resource.data));
+      allow delete: if isAdmin();
+    }
+
+    function isValidTicket(data) {
+      return data.keys().hasAll(['userId', 'drawIds', 'entries', 'total', 'timestamp', 'customerName', 'sequenceNumber', 'sellerName', 'commission', 'commissionRateApplied']) &&
+             data.userId == request.auth.uid &&
+             data.drawIds is list && data.drawIds.size() >= 1 && data.drawIds.size() <= 20 &&
+             data.entries is list && data.entries.size() >= 1 && data.entries.size() <= 100 &&
+             data.total is number && data.total >= 0 &&
+             data.timestamp is number &&
+             isValidString(data.customerName, 1, 100) &&
+             data.sequenceNumber is number &&
+             isValidString(data.sellerName, 1, 100) &&
+             (!('sellerId' in data) || isValidString(data.sellerId, 1, 10)) &&
+             data.commission is number && data.commission >= 0;
+    }
+
+    match /tickets/{ticketId} {
+      allow read: if isAdmin() || isDocOwner();
+      allow create: if isAuthenticated() && isValidTicket(request.resource.data);
+      allow update: if isAdmin() || (isDocOwner() && isValidTicket(request.resource.data));
+      allow delete: if isAdmin() || isDocOwner();
+    }
+
+    match /draws/{drawId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    function isValidPaleSettings(data) {
+      return data.keys().hasAll(['enabled', 'minAmount', 'maxAmountPerPlay', 'globalLimitPerCombination', 'payouts']) &&
+             data.enabled is bool &&
+             data.minAmount is number && data.minAmount >= 0 &&
+             data.maxAmountPerPlay is number && data.maxAmountPerPlay > 0 &&
+             data.globalLimitPerCombination is number && data.globalLimitPerCombination > 0 &&
+             data.payouts is map &&
+             data.payouts.keys().hasAll(['firstSecond', 'firstThird', 'secondThird']) &&
+             data.payouts.firstSecond is number &&
+             data.payouts.firstThird is number &&
+             data.payouts.secondThird is number;
+    }
+
+    function isValidBilleteSettings(data) {
+      return data.keys().hasAll(['enabled', 'unitPrice', 'globalLimitPerNumber', 'payouts']) &&
+             data.enabled is bool &&
+             data.unitPrice is number && data.unitPrice > 0 &&
+             data.globalLimitPerNumber is number && data.globalLimitPerNumber > 0 &&
+             data.payouts is map &&
+             data.payouts.keys().hasAll(['firstPrize', 'secondPrize', 'thirdPrize']) &&
+             data.payouts.firstPrize is map &&
+             data.payouts.secondPrize is map &&
+             data.payouts.thirdPrize is map;
+    }
+
+    match /gameSettings/pale {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidPaleSettings(request.resource.data);
+    }
+
+    match /gameSettings/billete {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidBilleteSettings(request.resource.data);
+    }
+
+    match /gameSettings/general {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /archives/{archiveId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /betsControl/{betId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

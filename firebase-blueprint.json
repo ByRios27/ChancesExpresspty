@@ -1,0 +1,195 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string" },
+        "commission": { "type": "number" },
+        "capitalInjection": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "name", "role", "status", "commission"]
+    },
+    "Draw": {
+      "title": "Draw",
+      "description": "Lottery draw configuration",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "drawTime": { "type": "string" },
+        "drawTimeSort": { "type": "number" },
+        "closeTime": { "type": "string" },
+        "closeTimeSort": { "type": "number" },
+        "digitsMode": { "type": "number" },
+        "allowedSpecialBets": {
+          "type": "object",
+          "properties": {
+            "pale": { "type": "boolean" },
+            "billete": { "type": "boolean" }
+          }
+        },
+        "isActive": { "type": "boolean" },
+        "results": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "createdBy": { "type": "string" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["name", "drawTime", "closeTime", "digitsMode", "isActive", "createdAt"]
+    },
+    "Entry": {
+      "title": "Entry",
+      "description": "A single bet entry in a ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "number": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string" },
+        "prize": { "type": "number" },
+        "status": { "type": "string" },
+        "winningPosition": { "type": "string" }
+      },
+      "required": ["number", "amount", "type"]
+    },
+    "Ticket": {
+      "title": "Ticket",
+      "description": "A ticket containing multiple entries",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "drawIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "drawNames": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/entities/Entry" }
+        },
+        "total": { "type": "number" },
+        "timestamp": { "type": "number" },
+        "isPaid": { "type": "boolean" },
+        "totalPrize": { "type": "number" },
+        "customerName": { "type": "string" },
+        "sequenceNumber": { "type": "number" },
+        "sellerName": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "commission": { "type": "number" }
+      },
+      "required": ["userId", "drawIds", "entries", "total", "timestamp", "sequenceNumber"]
+    },
+    "PaleSettings": {
+      "title": "Pale Settings",
+      "description": "Configuration for the Palé game mode",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "minAmount": { "type": "number" },
+        "maxAmountPerPlay": { "type": "number" },
+        "globalLimitPerCombination": { "type": "number" },
+        "payouts": {
+          "type": "object",
+          "properties": {
+            "firstSecond": { "type": "number" },
+            "firstThird": { "type": "number" },
+            "secondThird": { "type": "number" }
+          },
+          "required": ["firstSecond", "firstThird", "secondThird"]
+        }
+      },
+      "required": ["enabled", "minAmount", "maxAmountPerPlay", "globalLimitPerCombination", "payouts"]
+    },
+    "BilleteSettings": {
+      "title": "Billete Settings",
+      "description": "Configuration for the Billete game mode",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "unitPrice": { "type": "number" },
+        "globalLimitPerNumber": { "type": "number" },
+        "payouts": {
+          "type": "object",
+          "properties": {
+            "firstPrize": { "$ref": "#/entities/BilletePayouts" },
+            "secondPrize": { "$ref": "#/entities/BilletePayouts" },
+            "thirdPrize": { "$ref": "#/entities/BilletePayouts" }
+          },
+          "required": ["firstPrize", "secondPrize", "thirdPrize"]
+        }
+      },
+      "required": ["enabled", "unitPrice", "globalLimitPerNumber", "payouts"]
+    },
+    "BilletePayouts": {
+      "title": "Billete Payouts",
+      "type": "object",
+      "properties": {
+        "exact4": { "type": "number" },
+        "exact3PrefixOrSuffix": { "type": "number" },
+        "exact2PrefixOrSuffix": { "type": "number" }
+      },
+      "required": ["exact4", "exact3PrefixOrSuffix", "exact2PrefixOrSuffix"]
+    },
+    "BetControl": {
+      "title": "Bet Control",
+      "description": "Global limit control for specific bet combinations",
+      "type": "object",
+      "properties": {
+        "key": { "type": "string", "description": "Unique key for the combination (e.g., pale-45-78)" },
+        "normalizedKey": { "type": "string", "description": "Sorted combination (e.g., 45-78)" },
+        "totalAmount": { "type": "number", "description": "Total amount sold for this combination" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["key", "normalizedKey", "totalAmount", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "draws/{drawId}": {
+      "schema": "Draw",
+      "description": "Lottery draws"
+    },
+    "tickets/{ticketId}": {
+      "schema": "Ticket",
+      "description": "Tickets created by users"
+    },
+    "gameSettings/pale": {
+      "schema": "PaleSettings",
+      "description": "Global settings for Palé game"
+    },
+    "gameSettings/billete": {
+      "schema": "BilleteSettings",
+      "description": "Global settings for Billete game"
+    },
+    "gameSettings/general": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pricePerTime": { "type": "number" },
+          "commissionRate": { "type": "number" }
+        }
+      },
+      "description": "General application settings"
+    },
+    "betsControl/{betKey}": {
+      "schema": "BetControl",
+      "description": "Control for individual bet combinations"
+    }
+  }
+}

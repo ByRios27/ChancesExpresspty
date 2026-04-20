@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LottoPro</string>
+    <string name="title_activity_main">LottoPro</string>
+    <string name="package_name">com.lottopro.app</string>
+    <string name="custom_url_scheme">com.lottopro.app</string>
+</resources>
