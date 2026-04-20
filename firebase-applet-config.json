@@ -1,10 +1,9 @@
 {
-  "projectId": "chances-pro-28881102-6f5e0",
-  "appId": "1:1075918394533:web:45379e63e71fe277f6694c",
-  "apiKey": "AIzaSyDK2BETkJGwmZYH2tqSiA5MWOet4bTomAo",
-  "authDomain": "chances-pro-28881102-6f5e0.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-b68afee4-767e-4cf1-ac1d-ac2882307f85",
-  "storageBucket": "chances-pro-28881102-6f5e0.firebasestorage.app",
-  "messagingSenderId": "1075918394533",
-  "measurementId": ""
+  "projectId": "chance-express-pty",
+  "appId": "1:637905076706:web:c338400f6ba4cacbeef9bb",
+  "apiKey": "AIzaSyDXfU7YfuxNvK-z1bXRiIhQqrC6Cc_NU0w",
+  "authDomain": "chance-express-pty.firebaseapp.com",
+  "storageBucket": "chance-express-pty.firebasestorage.app",
+  "messagingSenderId": "637905076706",
+  "measurementId": "G-DWKYG0DE6C"
 }

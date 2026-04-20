@@ -36,9 +36,12 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
+      // A user can create their own user document, but cannot overwrite it.
+      // The first admin user is created this way.
+      // Subsequent user creations must be done by an admin.
+      allow create: if (isOwner(userId) && request.auth.token.email == "jrios5061@gmail.com") || isAdmin();
       allow get: if isAuthenticated();
       allow list: if isAdmin() || (isAuthenticated() && request.query.limit == 1);
-      allow create: if isAdmin() || (isAuthenticated() && request.auth.token.email == "jrios5061@gmail.com");
       allow update: if isAdmin() || (isOwner(userId) && 
                       request.resource.data.role == resource.data.role && 
                       request.resource.data.commission == resource.data.commission &&

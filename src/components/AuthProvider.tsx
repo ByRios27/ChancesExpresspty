@@ -359,7 +359,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       console.error('Login error:', error);
-      if (error.code === 'auth/operation-not-allowed') {
+      if (error.code === 'auth/invalid-credential') {
+        setAuthError('Correo electrónico o contraseña incorrectos.');
+      } else if (error.code === 'auth/operation-not-allowed') {
         setAuthError('El inicio de sesión con correo/contraseña no está habilitado en Firebase Console.');
       } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         setAuthError('Credenciales inválidas.');

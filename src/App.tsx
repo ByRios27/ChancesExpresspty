@@ -17,6 +17,7 @@ import { TicketModal } from './components/TicketModal';
 import { AuthProvider } from './components/AuthProvider';
 import { PullToRefresh } from './components/PullToRefresh';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import TempUserCreate from './components/TempUserCreate';
 
 export default function App() {
   const { currentPage, setCurrentPage } = useStore();
@@ -33,6 +34,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
+        <TempUserCreate />
         <div className="flex flex-col h-[100dvh] max-w-[400px] mx-auto bg-gradient-to-b from-[#0f172a] via-[#0b1220] to-[#080d19] border border-white/5 shadow-[0_18px_50px_rgba(2,6,23,0.65)] overflow-hidden relative">
         {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
