@@ -26,9 +26,14 @@ export default function App() {
   const { tickets } = useStore();
   const [activeTicket, setActiveTicket] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const feature = new URLSearchParams(window.location.search).get('feature');
-  const showTicketSearch = feature === 'ticket-search';
-  const showTicketCreate = feature === 'ticket-create';
+  const [experimentalFeature, setExperimentalFeature] = useState<'none' | 'ticket-search' | 'ticket-create'>(() => {
+    const feature = new URLSearchParams(window.location.search).get('feature');
+    if (feature === 'ticket-search') return 'ticket-search';
+    if (feature === 'ticket-create') return 'ticket-create';
+    return 'none';
+  });
+  const showTicketSearch = experimentalFeature === 'ticket-search';
+  const showTicketCreate = experimentalFeature === 'ticket-create';
 
   const handleRefresh = async () => {
     // In a real app, you might re-fetch data. 
@@ -46,6 +51,27 @@ export default function App() {
 
         {/* Global Header */}
         <GlobalHeader onMenuClick={() => setIsSidebarOpen(true)} />
+
+        <div className="px-3 py-2 border-b border-white/5 bg-[#0D1527] flex items-center justify-between gap-2">
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Flujo Nuevo (Prueba Controlada)
+          </p>
+          {!showTicketCreate ? (
+            <button
+              onClick={() => setExperimentalFeature('ticket-create')}
+              className="px-2 py-1 rounded bg-emerald-600 text-[10px] font-black uppercase tracking-wider text-white"
+            >
+              Abrir
+            </button>
+          ) : (
+            <button
+              onClick={() => setExperimentalFeature('none')}
+              className="px-2 py-1 rounded bg-slate-700 text-[10px] font-black uppercase tracking-wider text-white"
+            >
+              Volver
+            </button>
+          )}
+        </div>
 
         {/* Main Content */}
         <main className="flex-1 overflow-hidden relative">
